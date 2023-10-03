@@ -10,5 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "html-to-text": "^9.0.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
