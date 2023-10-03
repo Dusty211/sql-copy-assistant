@@ -18,7 +18,7 @@ async function iterateFileLines(max, cb){
             if(typeof max === 'number' && max < currentLine){
                 break
             }else{
-                cb(line, batchCount)
+                await cb(line, batchCount)
                 ++currentLine
             }
         }
