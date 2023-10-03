@@ -5,6 +5,7 @@ async function main(){
     console.time('main() exec time')
     await iterateFileLines(4, iterateFileLinesCb)
     console.timeEnd('main() exec time')
+    return
 }
 
 main()
