@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
-const { once } = require('node:events');
 
 const {sourceDir} = require('../paths.json')
 const DATAFILE = path.join(__dirname, sourceDir)
@@ -13,12 +12,13 @@ async function iterateFileLines(max, cb){
             crlfDelay: Infinity
         })
         let currentLine = 1
+        const batchCount = {value: 0}
 
         for await (const line of rl) {
             if(typeof max === 'number' && max < currentLine){
                 break
             }else{
-                cb(line)
+                cb(line, batchCount)
                 ++currentLine
             }
         }
