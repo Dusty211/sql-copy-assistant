@@ -12,7 +12,7 @@ async function iterateFileLines(max, cb){
             crlfDelay: Infinity
         })
         let currentLine = 1
-        const batchCount = {value: 0}
+        const batchCount = {value: 1}
 
         for await (const line of rl) {
             if(typeof max === 'number' && max < currentLine){
