@@ -22,17 +22,6 @@ async function iterateFileLines(max = 'none', cb){
                 ++currentLine
             }
         }
-
-        // rl.on('line', (line) => {
-        //     if(typeof max === 'number' && max < currentLine){
-        //         rl.close()
-        //         rl.removeAllListeners()
-        //     }else{
-        //         cb(line)
-        //         ++currentLine
-        //     }
-        // })
-        // await once(rl, 'close')
     }catch(e){
         console.error(e)
     }

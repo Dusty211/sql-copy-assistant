@@ -5,7 +5,6 @@ async function main(){
     await iterateFileLines(4, line => {
         const parsed = JSON.parse(line)
         console.log('===========>> NEW THREAD:')
-        // console.log(parsed.posts.map(post => post.entities))
         console.log(parsed.posts)
         return
     })
