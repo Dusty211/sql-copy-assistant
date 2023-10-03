@@ -6,7 +6,7 @@ const { once } = require('node:events');
 const {sourceDir} = require('../paths.json')
 const DATAFILE = path.join(__dirname, sourceDir)
 
-async function iterateFileLines(max = 'none', cb){
+async function iterateFileLines(max, cb){
     try{
         const rl = readline.createInterface({
             input: fs.createReadStream(DATAFILE),
