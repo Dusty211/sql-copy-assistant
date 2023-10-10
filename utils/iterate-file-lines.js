@@ -8,6 +8,7 @@ const {sourceDir} = require('../paths.json')
 const DATAFILE = path.join(__dirname, sourceDir)
 
 async function iterateFileLines(cb, max = null, batchMax = 5000){
+
     try{
         const rl = readline.createInterface({
             input: fs.createReadStream(DATAFILE),
@@ -15,15 +16,25 @@ async function iterateFileLines(cb, max = null, batchMax = 5000){
         })
 
         const batch = new Batch()
+        let appendDataToFileFn
 
         for await (const line of rl) {
+            const dbIndex = batch.currentIndex + 1
+
             if(typeof max === 'number' && batch.currentIndex >= max){
                 break
             }else{
-                await cb(line, batch, batchMax)
+                appendDataToFileFn = await cb(line, dbIndex)
+                batch.increment()
+                if(batch.count >= batchMax){
+                    await appendDataToFileFn()
+                    batch.reset()
+                }
                 batch.incrementCurrentIndex()
             }
         }
+        await appendDataToFileFn()
+        batch.reset()
     }catch(e){
         console.error(e)
     }
