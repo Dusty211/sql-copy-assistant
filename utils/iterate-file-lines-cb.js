@@ -1,19 +1,12 @@
 const {stager} = require('./stage-tables')
 
-async function iterateFileLinesCb(line, batch, batchMax) {
+async function iterateFileLinesCb(line, dbIndex) {
     const parsed = JSON.parse(line)
-
-    const dbIndex = batch.currentIndex + 1
-    stager.dataMapFunctions.thread(parsed, dbIndex)
-    stager.dataMapFunctions.post(parsed, dbIndex)
-
-    batch.increment()
-    console.log(`batch.count: ${batch.count}`)
-    if(batch.count >= batchMax){
-        await stager.writeDataFiles()
-        batch.reset()
-    }
-    return
+    const mapAllTableData = Object.keys(
+        stager.dataMapFunctions
+    ).map(table => stager.dataMapFunctions[table](parsed, dbIndex))
+    await Promise.all(mapAllTableData)
+    return async () => await stager.writeDataFiles()
 }
 
 module.exports = {
