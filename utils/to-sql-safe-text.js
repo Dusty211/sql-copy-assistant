@@ -40,7 +40,7 @@ function SqlSafeTextCb(match, ...args){
 }
 
 function toSqlSafeText(string){    
-    return string.replace(SqlSafeTextRegex, SqlSafeTextCb)
+    return typeof string === 'string' && string.length > 0 ? string.replace(SqlSafeTextRegex, SqlSafeTextCb) : ''
 }
 
 module.exports = {toSqlSafeText}
