@@ -1,13 +1,8 @@
-const {Stager} = require('./Stager')
+const {OutputHelper} = require('./OutputHelper')
 const {outputDir} = require('../paths.json')
-const tableFunctions = require('./stage-table-functions')
 
-const stager = new Stager(outputDir)
-
-for (const [tableName, dataProcessingFn] of Object.entries(tableFunctions)) {
-    stager.createTable(tableName, dataProcessingFn)
-}
+const outputHelper = new OutputHelper(outputDir)
 
 module.exports = {
-    stager
+    outputHelper
 }
