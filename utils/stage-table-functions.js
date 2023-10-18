@@ -10,11 +10,11 @@ module.exports = {
      * 
      * Example:
      * 
-     * <name identifying table>: < async () => Fn wich will process 
+     * <name identifying table>: < () => Fn wich will process 
      * data for each ndjson line for that table>
      *     
      
-    tableOne:  async (rowInput, index) => {
+    tableOne:  (rowInput, index) => {
 
         const messages = rowInput?.messages || []
 
@@ -42,7 +42,7 @@ module.exports = {
     Other functions follow...
     */
     
-    intentionalError: async (rowInput, index) => {
+    intentionalError: (rowInput, index) => {
         throw new Error(
             'Remove this function and implement your own functions in the pattern of the above example.'
             )
