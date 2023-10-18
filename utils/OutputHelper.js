@@ -8,8 +8,8 @@ function OutputHelper(outputDir){
     this.writeBuffersToFiles = async function(workerThreadResults){
         const createFilePath = fileName => path.join(this.outputDir, `${this.fileTimestamp}-${fileName}`)
         const appendDataPromises = workerThreadResults.flat(Infinity).flatMap(result => {
-            Object.entries(result).map( ([tableName, arrayBuffer]) => 
-                appendFile(createFilePath(tableName), arrayBuffer.buffer))
+            Object.entries(result).map( ([tableName, uint8Array]) => 
+                appendFile(createFilePath(tableName), uint8Array))
         })
         await Promise.all(appendDataPromises)
         return this
