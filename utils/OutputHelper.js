@@ -10,20 +10,22 @@ function OutputHelper(outputDir){
         const appendDataPromises = workerThreadResults.flat(Infinity).flatMap(result => {
             Object.entries(result).map( ([tableName, uint8Array]) => {
                 return new Promise((resolve, reject) => {
-                    const currentStream = this.writeStreams[tableName]
-                    currentStream.on('error', error => reject(error))
-                    const cleanUp = () => currentStream.on('finish', () => {
-                        currentStream.end(resolve)
-                    })
-                    if(!currentStream.write(uint8Array)){
-                        currentStream.once('drain', options.final ? cleanUp : resolve)
-                    }else{
-                        options.final ? cleanUp() : resolve()
+                    try{
+                        const currentStream = this.writeStreams[tableName]
+                        const cleanUp = () => currentStream.on('finish', () => {
+                            currentStream.end(resolve)
+                        })
+                        if(!currentStream.write(uint8Array)){
+                            currentStream.once('drain', options.final ? cleanUp : resolve)
+                        }else{
+                            options.final ? cleanUp() : resolve()
+                        }
+                    }catch(error){
+                        reject(error)
                     }
                 })
             })
         })
-
         await Promise.all(appendDataPromises)
         return this
     }
@@ -34,12 +36,16 @@ function OutputHelper(outputDir){
 
         const getCreatedFileStreamOnReady = tableName => {
             return new Promise((resolve, reject) => {
-                const stream = fs.createWriteStream(createFilePath(tableName), {
-                    autoClose: false, 
-                    flags: 'a'
-                })
-                stream.once('ready', () => resolve({tableName, stream}))
-                stream.once('error', error => reject(error))
+                try{
+                    const stream = fs.createWriteStream(createFilePath(tableName), {
+                        autoClose: false, 
+                        flags: 'a'
+                    })
+                    stream.once('ready', () => resolve({tableName, stream}))
+                    stream.on('error', e => console.error(e))
+                }catch(error){
+                    reject(error)
+                }
             })
         }
 

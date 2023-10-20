@@ -26,7 +26,8 @@ function resultsMap(tableName, results){
     })
 }
 
-async function sendBatchToWorkerThreads(tableName, currentData){
+async function sendBatchToWorkerThreads(tableName, currentDataOrig){
+    const currentData = [...currentDataOrig]
 
     const len = currentData.length
     if(len <= 4){
