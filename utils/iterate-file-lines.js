@@ -22,6 +22,8 @@ async function iterateFileLines(max = null, batchMax = 5000){
             crlfDelay: Infinity
         })
 
+        await outputHelper.initWriteStreams(tableNames)
+
         const batch = new Batch()
         const nextData = []
         let currentData = []
@@ -38,7 +40,7 @@ async function iterateFileLines(max = null, batchMax = 5000){
                 batch.increment()
                 if(batch.count >= batchMax){
                     workerThreadResults = await workerThreadPromises
-                    outputHelper.writeBuffersToFiles(workerThreadResults) //will be an empty string on first batch.
+                    await outputHelper.writeBuffersToFiles(workerThreadResults) //will be an empty string on first batch.
                     workerThreadPromises = Promise.all(tableNames.map(tableName => {
                         return sendBatchToWorkerThreads(tableName, currentData)
                     }))
@@ -51,21 +53,21 @@ async function iterateFileLines(max = null, batchMax = 5000){
         }
         //Handle data still coming back from last loop of for loop:
         workerThreadResults = await workerThreadPromises
-        outputHelper.writeBuffersToFiles(workerThreadResults)
+        await outputHelper.writeBuffersToFiles(workerThreadResults)
 
         //Remaining unprocessed 'currentData':
         workerThreadPromises = Promise.all(tableNames.map(tableName => {
             return sendBatchToWorkerThreads(tableName, currentData)
         }))
         workerThreadResults = await workerThreadPromises
-        outputHelper.writeBuffersToFiles(workerThreadResults)
+        await outputHelper.writeBuffersToFiles(workerThreadResults)
 
         //Remaining unprocessed 'nextData':
         workerThreadPromises = Promise.all(tableNames.map(tableName => {
             return sendBatchToWorkerThreads(tableName, nextData) //Promise.all
         }))
         workerThreadResults = await workerThreadPromises
-        await outputHelper.writeBuffersToFiles(workerThreadResults)
+        await outputHelper.writeBuffersToFiles(workerThreadResults, {final: true})
 
         batch.reset()
     }catch(e){

@@ -7,21 +7,23 @@ const encoder = new TextEncoder();
     const output = []
     for(const [id, text] of currentData){
         const stringResult = mapDataFunctions[tableName](id, text)
-        const uint =  new Uint8Array(stringResult.length * 3) //optimization of allocation
-        encoder.encodeInto(stringResult, uint)
-        output.push(uint)
+        if(stringResult.length !== 0){
+            const uint =  new Uint8Array(stringResult.length * 3) //optimization for encodeInto()
+            const {written: bytesWritten} = encoder.encodeInto(stringResult, uint)
+            output.push([bytesWritten, uint])
+        }
     }
 
     let totalLength = 0
-    output.forEach( uint => {
-        totalLength += uint.length
+    output.forEach( ([bytesWritten]) => {
+        totalLength += bytesWritten
     })
     const uintResult = new Uint8Array(totalLength)
 
     let offset = 0
-    output.forEach(uint => {
-        uintResult.set(uint, offset)
-        offset += uint.length
+    output.forEach( ([bytesWritten, uint]) => {
+        uintResult.set(uint.slice(0, bytesWritten), offset)
+        offset += bytesWritten
     })
 
     parentPort.postMessage(uintResult, [uintResult.buffer])
