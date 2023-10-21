@@ -1,16 +1,15 @@
 const {toSqlSafeText} = require('../utils/to-sql-safe-text')
 
 describe(`toSqlSafeText() ==>`, () => {
-
     test(`Result of toSqlSafeText() is defined`, () => {
         expect(toSqlSafeText('test')).toBeDefined()
     })
 
-    //Literal '\' character is escaped    
+    //Literal '\' character is escaped
     test(`'\\' is converted to '\\\\'`, () => {
         expect(toSqlSafeText('\\')).toBe('\\\\')
     })
-    
+
     //Newline converted
     test(`'\\n' is converted to ' '`, () => {
         expect(toSqlSafeText('\n')).toBe(' ')
@@ -43,7 +42,8 @@ describe(`toSqlSafeText() ==>`, () => {
 
     //Multiple instances of all special characters randomly interdispersed
     test(`Multiple items are handled properly`, () => {
-        const maniacalString = 'begin\\sa\rsas\tuisd\\\rfafm\vnt\btty\nu\\\nit\vydf\fdfaf\\\ras\bd\\\nfsngad\nfa\rfa\fsd\tf\\end'
+        const maniacalString =
+            'begin\\sa\rsas\tuisd\\\rfafm\vnt\btty\nu\\\nit\vydf\fdfaf\\\ras\bd\\\nfsngad\nfa\rfa\fsd\tf\\end'
         expect(toSqlSafeText(maniacalString)).toBe(
             'begin\\\\sa sas uisd fafm nttty u it ydf dfaf asd fsngad fa fa sd f\\\\end'
         )

@@ -8,15 +8,12 @@ const {OutputHelper} = require('./OutputHelper')
 const mapDataFunctions = require('./stage-table-functions')
 const tableNames = Object.keys(mapDataFunctions)
 
-const {
-    sourceDir,
-    outputDir
-} = require('../paths.json')
+const {sourceDir, outputDir} = require('../paths.json')
 const DATAFILE = path.join(__dirname, sourceDir)
 const outputHelper = new OutputHelper(outputDir)
 
-async function iterateFileLines(max = null, batchMax = 5000){
-    try{
+async function iterateFileLines(max = null, batchMax = 5000) {
+    try {
         const rl = readline.createInterface({
             input: fs.createReadStream(DATAFILE),
             crlfDelay: Infinity
@@ -33,17 +30,19 @@ async function iterateFileLines(max = null, batchMax = 5000){
         for await (const line of rl) {
             const dbIndex = batch.currentIndex + 1
 
-            if(typeof max === 'number' && batch.currentIndex >= max){
+            if (typeof max === 'number' && batch.currentIndex >= max) {
                 break
-            }else{
+            } else {
                 nextData.push([dbIndex, line])
                 batch.increment()
-                if(batch.count >= batchMax){
+                if (batch.count >= batchMax) {
                     workerThreadResults = await workerThreadPromises
                     await outputHelper.writeBuffersToFiles(workerThreadResults) //will be an empty string on first batch.
-                    workerThreadPromises = Promise.all(tableNames.map(tableName => {
-                        return sendBatchToWorkerThreads(tableName, currentData)
-                    }))
+                    workerThreadPromises = Promise.all(
+                        tableNames.map((tableName) => {
+                            return sendBatchToWorkerThreads(tableName, currentData)
+                        })
+                    )
                     currentData = [...nextData]
                     nextData.length = 0
                     batch.reset()
@@ -56,21 +55,25 @@ async function iterateFileLines(max = null, batchMax = 5000){
         await outputHelper.writeBuffersToFiles(workerThreadResults)
 
         //Remaining unprocessed 'currentData':
-        workerThreadPromises = Promise.all(tableNames.map(tableName => {
-            return sendBatchToWorkerThreads(tableName, currentData)
-        }))
+        workerThreadPromises = Promise.all(
+            tableNames.map((tableName) => {
+                return sendBatchToWorkerThreads(tableName, currentData)
+            })
+        )
         workerThreadResults = await workerThreadPromises
         await outputHelper.writeBuffersToFiles(workerThreadResults)
 
         //Remaining unprocessed 'nextData':
-        workerThreadPromises = Promise.all(tableNames.map(tableName => {
-            return sendBatchToWorkerThreads(tableName, nextData) //Promise.all
-        }))
+        workerThreadPromises = Promise.all(
+            tableNames.map((tableName) => {
+                return sendBatchToWorkerThreads(tableName, nextData) //Promise.all
+            })
+        )
         workerThreadResults = await workerThreadPromises
         await outputHelper.writeBuffersToFiles(workerThreadResults, {final: true})
 
         batch.reset()
-    }catch(e){
+    } catch (e) {
         console.error(e)
     }
 }

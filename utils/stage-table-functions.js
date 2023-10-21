@@ -41,10 +41,10 @@ module.exports = {
     
     Other functions follow...
     */
-    
+
     intentionalError: (rowInput, index) => {
         throw new Error(
             'Remove this function and implement your own functions in the pattern of the above example.'
-            )
+        )
     }
 }
