@@ -1,8 +1,8 @@
-const {iterateFileLines} = require('./utils/iterate-file-lines')
+const {runPipeline} = require('./utils/pipeline')
 
 async function main() {
     console.time('main() exec time')
-    await iterateFileLines(null, 5000)
+    await runPipeline()
     console.timeEnd('main() exec time')
     return
 }
