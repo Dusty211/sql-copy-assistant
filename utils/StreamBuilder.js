@@ -1,27 +1,27 @@
 const fs = require('node:fs')
 const path = require('path')
-const tableFunctions = require('./stage-table-functions')
+const fileFunctions = require('./stage-table-functions')
 const {outputDir} = require('../paths.json')
 
 class StreamBuilder {
     constructor() {
-        this.tableNames = Object.keys(tableFunctions)
+        this.fileNames = Object.keys(fileFunctions)
         this.streams = {}
         this.results = {}
         this.resultCount = 0
     }
 
     async asyncInit() {
-        for (const tableName of this.tableNames) {
-            this.results[tableName] = []
+        for (const fileName of this.fileNames) {
+            this.results[fileName] = []
         }
         await this.#createdFileStreamsOnReady()
         return this
     }
 
     push(result){
-        for (const tableName in result) {
-            this.results[tableName].push(result[tableName])
+        for (const fileName in result) {
+            this.results[fileName].push(result[fileName])
         }
         this.resultCount++
         return this
@@ -29,19 +29,19 @@ class StreamBuilder {
 
     async writeBatchToStreams(options) {
         if(options?.final){
-            for (const tableName in this.streams) {
-                for (let i = this.results[tableName].length; i > 0; i--) {
+            for (const fileName in this.streams) {
+                for (let i = this.results[fileName].length; i > 0; i--) {
                     if(i === 1){
-                        await this.#writeToStream(this.results[tableName].shift(), tableName, options)
+                        await this.#writeToStream(this.results[fileName].shift(), fileName, options)
                     }else{
-                        await this.#writeToStream(this.results[tableName].shift(), tableName, {...options, final: false})
+                        await this.#writeToStream(this.results[fileName].shift(), fileName, {...options, final: false})
                     }
                 }
             }
         }else{
-            for (const tableName in this.streams) {
-                for (let i = this.results[tableName].length; i > 0; i--) {
-                    await this.#writeToStream(this.results[tableName].shift(), tableName, options)
+            for (const fileName in this.streams) {
+                for (let i = this.results[fileName].length; i > 0; i--) {
+                    await this.#writeToStream(this.results[fileName].shift(), fileName, options)
                 }
             }
         }
@@ -50,26 +50,26 @@ class StreamBuilder {
 
     get resultsLengths() {
         const result = {}
-        for(const tableName in this.results) {
-            result[tableName] = this.results[tableName].length
+        for(const fileName in this.results) {
+            result[fileName] = this.results[fileName].length
         }
         return result
     }
 
     #createdFileStreamsOnReady() {
         return Promise.all(
-            this.tableNames.map((tableName) => {
+            this.fileNames.map((fileName) => {
                 return new Promise((resolve, reject) => {
                     try {
-                        this.streams[tableName] = fs.createWriteStream(
-                            path.join(outputDir, `${Date.now()}-${tableName}`),
+                        this.streams[fileName] = fs.createWriteStream(
+                            path.join(outputDir, `${Date.now()}-${fileName}`),
                             {
                                 autoClose: false,
                                 flags: 'a'
                             }
                         )
-                        this.streams[tableName].once('ready', () => resolve())
-                        this.streams[tableName].on('error', (e) => console.error(e))
+                        this.streams[fileName].once('ready', () => resolve())
+                        this.streams[fileName].on('error', (e) => console.error(e))
                     } catch (error) {
                         reject(error)
                     }
@@ -78,14 +78,14 @@ class StreamBuilder {
         )
     }
 
-    #writeToStream(data, tableName, options = {}) {
+    #writeToStream(data, fileName, options = {}) {
         return new Promise((resolve, reject) => {
             try {
                 const cleanUp = () => {
-                    this.streams[tableName].end(resolve)
+                    this.streams[fileName].end(resolve)
                 }
-                if (!this.streams[tableName].write(data)) {
-                    this.streams[tableName].once('drain', options.final ? cleanUp : resolve)
+                if (!this.streams[fileName].write(data)) {
+                    this.streams[fileName].once('drain', options.final ? cleanUp : resolve)
                 } else {
                     options.final ? cleanUp() : resolve()
                 }
