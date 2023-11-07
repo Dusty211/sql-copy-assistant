@@ -2,7 +2,7 @@ const {convertHtml} = require('./html-to-text')
 const {toSqlSafeText} = require('./to-sql-safe-text')
 const {checkRequiredValues} = require('./check-required-values')
 
-// Imported by stage-tables.js
+// Imported by file-functions.js
 // Each of these will write text to an output file that you can use to do a SQL COPY.
 // Implementation is up to you.
 module.exports = {

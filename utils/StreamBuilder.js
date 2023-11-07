@@ -1,6 +1,6 @@
 const fs = require('node:fs')
 const path = require('path')
-const fileFunctions = require('./stage-table-functions')
+const fileFunctions = require('./file-functions')
 const {outputDir} = require('../paths.json')
 
 class StreamBuilder {

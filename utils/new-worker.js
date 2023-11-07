@@ -1,5 +1,5 @@
 const {parentPort} = require('worker_threads')
-const fileFunctions = require('./stage-table-functions')
+const fileFunctions = require('./file-functions')
 
 ;(function () {
 
