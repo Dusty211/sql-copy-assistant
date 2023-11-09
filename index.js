@@ -5,10 +5,7 @@ async function main(args) {
     await runPipeline(args)
     return
 }
-
-console.time('\nCompleted:')
 const args = handleArgs(process.argv)
-if(args){
+if (args) {
     main(args)
 }
-console.timeEnd('\nCompleted:')

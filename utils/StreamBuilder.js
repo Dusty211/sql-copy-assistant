@@ -14,7 +14,7 @@ class StreamBuilder {
     async asyncInit() {
         const fileFunctions = require(this.functionsFilePath)
         this.fileNames = Object.keys(fileFunctions)
-        
+
         for (const fileName of this.fileNames) {
             this.results[fileName] = []
         }
@@ -22,7 +22,7 @@ class StreamBuilder {
         return this
     }
 
-    push(result){
+    push(result) {
         for (const fileName in result) {
             this.results[fileName].push(result[fileName])
         }
@@ -31,17 +31,20 @@ class StreamBuilder {
     }
 
     async writeBatchToStreams(options) {
-        if(options?.final){
+        if (options?.final) {
             for (const fileName in this.streams) {
                 for (let i = this.results[fileName].length; i > 0; i--) {
-                    if(i === 1){
+                    if (i === 1) {
                         await this.#writeToStream(this.results[fileName].shift(), fileName, options)
-                    }else{
-                        await this.#writeToStream(this.results[fileName].shift(), fileName, {...options, final: false})
+                    } else {
+                        await this.#writeToStream(this.results[fileName].shift(), fileName, {
+                            ...options,
+                            final: false
+                        })
                     }
                 }
             }
-        }else{
+        } else {
             for (const fileName in this.streams) {
                 for (let i = this.results[fileName].length; i > 0; i--) {
                     await this.#writeToStream(this.results[fileName].shift(), fileName, options)
@@ -53,7 +56,7 @@ class StreamBuilder {
 
     get resultsLengths() {
         const result = {}
-        for(const fileName in this.results) {
+        for (const fileName in this.results) {
             result[fileName] = this.results[fileName].length
         }
         return result

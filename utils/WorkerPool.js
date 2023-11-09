@@ -39,7 +39,7 @@ class WorkerPool extends EventEmitter {
 
         //Only set this when constructor runs:
         this.taskQueueLimit = (() => {
-            switch(this.numThreads) {
+            switch (this.numThreads) {
                 case 1:
                     return 1
                 case 2:

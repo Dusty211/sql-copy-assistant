@@ -5,8 +5,17 @@ const readline = require('readline')
 const {WorkerPool} = require('./WorkerPool')
 const {PoolFiller} = require('./PoolFiller')
 const {StreamBuilder} = require('./StreamBuilder')
+const {updateTty} = require('./update-tty')
 
-async function runPipeline({maxLines = Infinity, outBatchSize = 5000, cpus, functionsFilePath, outputDirectoryPath, inputFilePath}) {
+async function runPipeline({
+    maxLines = Infinity,
+    outBatchSize = 5000,
+    cpus,
+    functionsFilePath,
+    outputDirectoryPath,
+    inputFilePath
+}) {
+    console.time('\n\nComplete')
     let pool
     await pipeline(
         //Read the ReadStream line-by-line, and then pipe
@@ -22,7 +31,11 @@ async function runPipeline({maxLines = Infinity, outBatchSize = 5000, cpus, func
 
         //Process each line using a thread pool, and then pipe
         async function* (source) {
-            const workerPool = new WorkerPool(cpus, join(__dirname, './worker.js'), functionsFilePath)
+            const workerPool = new WorkerPool(
+                cpus,
+                join(__dirname, './worker.js'),
+                functionsFilePath
+            )
             pool = new PoolFiller(workerPool)
 
             let index = 1
@@ -46,27 +59,35 @@ async function runPipeline({maxLines = Infinity, outBatchSize = 5000, cpus, func
 
         // Write threadpool results to files
         async function* (source) {
-            const streams = await new StreamBuilder(outputDirectoryPath, functionsFilePath).asyncInit()
-            let batchCount = 0
-            try{
+            const streams = await new StreamBuilder(
+                outputDirectoryPath,
+                functionsFilePath
+            ).asyncInit()
+            process.stdout.write('\n\n')
+            try {
+                let batchCount = 0
                 for await (const result of source) {
                     streams.push(result)
                     batchCount++
                     if (batchCount === outBatchSize) {
                         await streams.writeBatchToStreams()
                         batchCount = 0
-                        yield `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${streams.resultCount}.\r`
+                        updateTty(
+                            `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${streams.resultCount}.`
+                        )
                     }
                 }
-            }finally{
+            } finally {
                 await streams.writeBatchToStreams({final: true})
-                yield `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${streams.resultCount}. Leftovers: ${JSON.stringify(streams.resultsLengths)}.\r`
+                updateTty(
+                    `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${
+                        streams.resultCount
+                    }. Leftovers: ${JSON.stringify(streams.resultsLengths)}.`
+                )
             }
-        },
-        process.stdout
-    ).catch(error => {
-        process.stderr.write(`${error.stack}`)
-    })
+        }
+    )
+    console.timeEnd('\n\nComplete')
 }
 
 module.exports = {runPipeline}
