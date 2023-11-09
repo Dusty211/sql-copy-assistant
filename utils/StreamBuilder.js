@@ -1,17 +1,20 @@
 const fs = require('node:fs')
-const path = require('path')
-const fileFunctions = require('./file-functions')
-const {outputDir} = require('../paths.json')
+const {join} = require('path')
 
 class StreamBuilder {
-    constructor() {
-        this.fileNames = Object.keys(fileFunctions)
+    constructor(outputDirectoryPath, functionsFilePath) {
+        this.outputDirectoryPath = outputDirectoryPath
+        this.functionsFilePath = functionsFilePath
+        this.fileNames = []
         this.streams = {}
         this.results = {}
         this.resultCount = 0
     }
 
     async asyncInit() {
+        const fileFunctions = require(this.functionsFilePath)
+        this.fileNames = Object.keys(fileFunctions)
+        
         for (const fileName of this.fileNames) {
             this.results[fileName] = []
         }
@@ -62,7 +65,7 @@ class StreamBuilder {
                 return new Promise((resolve, reject) => {
                     try {
                         this.streams[fileName] = fs.createWriteStream(
-                            path.join(outputDir, `${Date.now()}-${fileName}`),
+                            join(this.outputDirectoryPath, `${Date.now()}-${fileName}`),
                             {
                                 autoClose: false,
                                 flags: 'a'

@@ -1,8 +1,7 @@
-const {parentPort} = require('worker_threads')
-const fileFunctions = require('./file-functions')
+const {parentPort, workerData} = require('worker_threads')
 
-;(function () {
-
+;(function (functionsFilePath) {
+    const fileFunctions = require(functionsFilePath)
     parentPort.on('message', ({index, string}) => {
         const newlineObject = JSON.parse(string)
         const result = {}
@@ -11,4 +10,4 @@ const fileFunctions = require('./file-functions')
         }
         parentPort.postMessage(result)
     })
-})()
+})(workerData)

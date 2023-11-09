@@ -1,15 +1,19 @@
 {
-  "name": "sql-copy-assistant",
-  "version": "1.0.0",
-  "description": "",
+  "name": "string-threads",
+  "version": "0.1.0",
+  "description": "A multi-threaded NodeJS commandline tool for extremely large text files which sends line-by-line input from a source file's ReadStream accross a thread pool of Node worker_threads which are running JavaScript functions that you implement, and then out to a writeStream for each of those functions.",
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll"
   },
-  "author": "",
-  "license": "ISC",
+  "bin": {
+    "stth": "./bin/run"
+  },
+  "author": "Kyle Houghton",
+  "license": "MIT",
   "dependencies": {
-    "html-to-text": "^9.0.5"
+    "html-to-text": "^9.0.5",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "jest": "^29.7.0",

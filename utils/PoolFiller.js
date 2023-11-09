@@ -12,7 +12,7 @@ class PoolFiller {
     #waitForPool() {
         return new Promise((resolve, reject) => {
             try {
-                if (this.pool.tasks.length >= this.pool.numThreads / 4) {
+                if (this.pool.taskQueueFull) {
                     this.pool.once('taskQueueDrained', () => {
                         resolve()
                     })
