@@ -28,10 +28,10 @@ class WorkerPoolTaskInfo extends AsyncResource {
 }
 
 class WorkerPool extends EventEmitter {
-    constructor(numThreads, filePath, functionsFilePath) {
+    constructor(numThreads, filePath, options = {}) {
         super()
         this.filePath = filePath
-        this.functionsFilePath = functionsFilePath
+        this.options = options
         this.numThreads = numThreads
         this.workers = []
         this.freeWorkers = []
@@ -82,7 +82,7 @@ class WorkerPool extends EventEmitter {
     }
 
     addNewWorker() {
-        const worker = new Worker(this.filePath, {workerData: this.functionsFilePath})
+        const worker = new Worker(this.filePath, {workerData: this.options})
         worker.on('message', (result) => {
             // In case of success: Call the callback that was passed to `runTask`,
             // remove the `TaskInfo` associated with the Worker, and mark it as free

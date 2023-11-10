@@ -8,12 +8,13 @@ const {StreamBuilder} = require('./StreamBuilder')
 const {updateTty} = require('./update-tty')
 
 async function runPipeline({
-    maxLines = Infinity,
-    outBatchSize = 5000,
+    maxLines,
+    outBatchSize,
     cpus,
     functionsFilePath,
     outputDirectoryPath,
-    inputFilePath
+    inputFilePath,
+    inputFormat
 }) {
     console.time('\n\nComplete')
     let pool
@@ -31,11 +32,10 @@ async function runPipeline({
 
         //Process each line using a thread pool, and then pipe
         async function* (source) {
-            const workerPool = new WorkerPool(
-                cpus,
-                join(__dirname, './worker.js'),
-                functionsFilePath
-            )
+            const workerPool = new WorkerPool(cpus, join(__dirname, './worker.js'), {
+                functionsFilePath,
+                inputFormat
+            })
             pool = new PoolFiller(workerPool)
 
             let index = 1

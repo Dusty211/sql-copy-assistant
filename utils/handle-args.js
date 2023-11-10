@@ -3,6 +3,24 @@ const version = require('../package.json').version
 const os = require('os')
 const _ = require('lodash')
 
+const defaultOptionValues = {
+    maxLines: Infinity,
+    outBatchSize: 5000,
+    inputFormat: 'text'
+}
+
+function throwErrorOnMissingValue(args, optionNameAt) {
+    const argumentInPlaceOfValue =
+        typeof args[optionNameAt + 1] === 'string' && args[optionNameAt + 1].slice(0, 2) === '--'
+    const argumentMissingValue = !args[optionNameAt + 1]
+    if (argumentInPlaceOfValue || argumentMissingValue) {
+        throw new Error(
+            `The ${args[optionNameAt]} argument exists without being followed by a required value.`
+        )
+    }
+    return args[optionNameAt + 1]
+}
+
 function getAbsoluteFilePath(path) {
     return resolve(process.cwd(), path)
 }
@@ -36,25 +54,27 @@ function makeHelpMessage(versionMessage, options) {
 
 function getOptionValues(args, options, cpus) {
     try {
-        const optionValues = {}
+        const optionValues = {...defaultOptionValues}
         for (const option of options) {
             const optionNameAt = args.findIndex((arg) => arg === option.name)
             if (optionNameAt !== -1) {
-                const optionValue = args[optionNameAt + 1]
-                if (optionValue) {
-                    const camelName = _.camelCase(option.name.slice(2))
-                    switch (option.format) {
-                        case 'PATH':
-                            optionValues[camelName] = getAbsoluteFilePath(optionValue)
-                            break
-                        case 'INTEGER':
-                            optionValues[camelName] = parseInt(optionValue)
-                            break
-                        default:
-                            optionValues[camelName] = optionValue
-                    }
-                } else {
-                    throw new Error(`No value following '${args[optionNameAt]}'`)
+                const optionValue =
+                    option.format === 'BOOLEAN'
+                        ? true
+                        : throwErrorOnMissingValue(args, optionNameAt)
+                const camelName = _.camelCase(option.name.slice(2))
+                switch (option.format) {
+                    case 'BOOLEAN':
+                        optionValues[camelName] = optionValue //set to true above
+                        break
+                    case 'PATH':
+                        optionValues[camelName] = getAbsoluteFilePath(optionValue)
+                        break
+                    case 'INTEGER':
+                        optionValues[camelName] = parseInt(optionValue)
+                        break
+                    default:
+                        optionValues[camelName] = optionValue
                 }
             } else {
                 if (option.required) {
@@ -66,7 +86,9 @@ function getOptionValues(args, options, cpus) {
         return optionValues
     } catch (error) {
         console.error(
-            `\nInvalid arguments. 'args': ${args}. For help, run: 'stth --help'.\nError: ${error}`
+            `\nInvalid arguments. 'args': ${args.join(
+                ' '
+            )}. For help, run: 'stth --help'.\n\nError: ${error}`
         )
         return
     }
@@ -81,7 +103,8 @@ function handleArgs(argv) {
         {name: '--output-directory-path', required: true, format: 'PATH'},
         {name: '--functions-file-path', required: true, format: 'PATH'},
         {name: '--max-lines', required: false, format: 'INTEGER'},
-        {name: '--out-batch-size', required: false, format: 'INTEGER'}
+        {name: '--out-batch-size', required: false, format: 'INTEGER'},
+        {name: '--input-format', required: false, format: 'TEXT'}
     ]
 
     if (firstArg === '--version') {
@@ -107,11 +130,12 @@ function handleArgs(argv) {
     // Example return value:
     // {
     //     inputFilePath: '/home/someguy/proj-folder/big.ndjson',
-    //     outputDirectoryPath: '/home/someguy/bigdrive',
-    //     functionsFilePath: '/home/someguy/proj-folder/funcs.js',
+    //     outputDirectoryPath: '/home/someone/symlink-to-bigdrive',
+    //     functionsFilePath: '/home/someone/proj-folder/funcs.js',
     //     maxLines: 100000,
     //     outBatchSize: 5000,
-    //     cpus: 16
+    //     cpus: 16,
+    //     inputFormat: 'json'
     // }
 }
 
