@@ -1,5 +1,5 @@
-const {runPipeline} = require('./utils/pipeline')
-const {handleArgs} = require('./utils/handle-args')
+const {runPipeline} = require('./src/pipeline')
+const {handleArgs} = require('./src/handle-args')
 
 async function main(args) {
     await runPipeline(args)

@@ -2,9 +2,9 @@ const {pipeline} = require('node:stream/promises')
 const fs = require('node:fs')
 const {join} = require('path')
 const readline = require('readline')
-const {WorkerPool} = require('./WorkerPool')
-const {PoolFiller} = require('./PoolFiller')
-const {StreamBuilder} = require('./StreamBuilder')
+const {WorkerPool} = require('./classes/WorkerPool')
+const {PoolFiller} = require('./classes/PoolFiller')
+const {StreamBuilder} = require('./classes/StreamBuilder')
 const {updateTty} = require('./update-tty')
 
 async function runPipeline({

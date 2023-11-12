@@ -1,4 +1,4 @@
-const {toSqlSafeText} = require('../utils/to-sql-safe-text')
+const {toSqlSafeText} = require('../helpers/to-sql-safe-text')
 
 describe(`toSqlSafeText() ==>`, () => {
     test(`Result of toSqlSafeText() is defined`, () => {

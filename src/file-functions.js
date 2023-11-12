@@ -1,6 +1,6 @@
-const {convertHtml} = require('./html-to-text')
-const {toSqlSafeText} = require('./to-sql-safe-text')
-const {checkRequiredValues} = require('./check-required-values')
+const {convertHtml} = require('./helpers/html-to-text')
+const {toSqlSafeText} = require('./helpers/to-sql-safe-text')
+const {checkRequiredValues} = require('./helpers/check-required-values')
 
 function prepareFileFunctions(functionsFilePath) {
     const fileFunctions = require(functionsFilePath)
