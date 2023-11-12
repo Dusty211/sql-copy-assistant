@@ -7,8 +7,8 @@ class StreamBuilder {
         this.functionsFilePath = functionsFilePath
         this.fileNames = []
         this.streams = {}
-        this.results = {}
-        this.resultCount = 0
+        this.workerResults = {}
+        this.resultsPushed = 0
     }
 
     async asyncInit() {
@@ -16,28 +16,29 @@ class StreamBuilder {
         this.fileNames = Object.keys(fileFunctions)
 
         for (const fileName of this.fileNames) {
-            this.results[fileName] = []
+            this.workerResults[fileName] = []
         }
         await this.#createdFileStreamsOnReady()
         return this
     }
 
-    push(result) {
-        for (const fileName in result) {
-            this.results[fileName].push(result[fileName])
+    push(workerResult) {
+        for (const fileName in workerResult) {
+            this.workerResults[fileName].push(workerResult[fileName])
         }
-        this.resultCount++
+        this.resultsPushed++
         return this
     }
 
     async writeBatchToStreams(options) {
         if (options?.final) {
             for (const fileName in this.streams) {
-                for (let i = this.results[fileName].length; i > 0; i--) {
+                for (let i = this.workerResults[fileName].length; i > 0; i--) {
                     if (i === 1) {
-                        await this.#writeToStream(this.results[fileName].shift(), fileName, options)
+                        await this.#writeToStream(this.workerResults[fileName].shift(), fileName, options)
+                        //overriding final because we only want it on the last iteration.
                     } else {
-                        await this.#writeToStream(this.results[fileName].shift(), fileName, {
+                        await this.#writeToStream(this.workerResults[fileName].shift(), fileName, {
                             ...options,
                             final: false
                         })
@@ -46,8 +47,8 @@ class StreamBuilder {
             }
         } else {
             for (const fileName in this.streams) {
-                for (let i = this.results[fileName].length; i > 0; i--) {
-                    await this.#writeToStream(this.results[fileName].shift(), fileName, options)
+                for (let i = this.workerResults[fileName].length; i > 0; i--) {
+                    await this.#writeToStream(this.workerResults[fileName].shift(), fileName, options)
                 }
             }
         }
@@ -56,8 +57,8 @@ class StreamBuilder {
 
     get resultsLengths() {
         const result = {}
-        for (const fileName in this.results) {
-            result[fileName] = this.results[fileName].length
+        for (const fileName in this.workerResults) {
+            result[fileName] = this.workerResults[fileName].length
         }
         return result
     }

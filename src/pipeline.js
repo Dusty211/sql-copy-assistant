@@ -73,16 +73,16 @@ async function runPipeline({
                         await streams.writeBatchToStreams()
                         batchCount = 0
                         updateTty(
-                            `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${streams.resultCount}.`
+                            `Pool in/out: ${pool.tasksSent}/${pool.tasksComplete}. Worker results queued for write: ${streams.resultsPushed}.`
                         )
                     }
                 }
             } finally {
                 await streams.writeBatchToStreams({final: true})
                 updateTty(
-                    `Pool in/out: ${pool.linesIn}/${pool.linesOut}. Sent to fileStream: ${
-                        streams.resultCount
-                    }. Leftovers: ${JSON.stringify(streams.resultsLengths)}.`
+                    `Pool in/out: ${pool.tasksSent}/${pool.tasksComplete}. Worker results queued for write: ${
+                        streams.resultsPushed
+                    }. Left over in write queue: ${JSON.stringify(streams.resultsLengths)}.`
                 )
             }
         }

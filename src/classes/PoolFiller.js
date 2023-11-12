@@ -1,7 +1,7 @@
 class PoolFiller {
     constructor(workerPoolInstance) {
-        this.linesIn = 0
-        this.linesOut = 0
+        this.tasksSent = 0
+        this.tasksComplete = 0
         this.pool = workerPoolInstance
         this.messages = []
         this.pool.on('messageFromPool', (values) => {
@@ -28,12 +28,12 @@ class PoolFiller {
     async fill(obj) {
         await this.#waitForPool()
         this.pool.runTask(obj)
-        this.linesIn++
+        this.tasksSent++
     }
 
     getMessages() {
         const messages = [...this.messages.splice(0, this.messages.length)]
-        this.linesOut += messages.length
+        this.tasksComplete += messages.length
         return messages
     }
 
