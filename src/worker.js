@@ -1,5 +1,5 @@
 const {parentPort, workerData} = require('worker_threads')
-const {prepareFileFunctions} = require('./file-functions')
+const {prepareFileFunctions} = require('./prepare-file-functions')
 
 ;(function ({inputFormat, functionsFilePath}) {
     const fileFunctions = prepareFileFunctions(functionsFilePath)
