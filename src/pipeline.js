@@ -64,7 +64,7 @@ async function runPipeline({
             for await (const result of source) {
                 const index = result.index - shifted - 1
                 sortQueue[index] = result.data
-                while(sortQueue[0]) {
+                while (sortQueue[0]) {
                     shifted++
                     yield sortQueue.shift()
                 }
@@ -94,7 +94,9 @@ async function runPipeline({
             } finally {
                 await streams.writeBatchToStreams({final: true})
                 updateTty(
-                    `Pool in/out: ${pool.tasksSent}/${pool.tasksComplete}. Worker results queued for write: ${
+                    `Pool in/out: ${pool.tasksSent}/${
+                        pool.tasksComplete
+                    }. Worker results queued for write: ${
                         streams.resultsPushed
                     }. Left over in write queue: ${JSON.stringify(streams.resultsLengths)}.`
                 )

@@ -35,7 +35,11 @@ class StreamBuilder {
             for (const fileName in this.streams) {
                 for (let i = this.workerResults[fileName].length; i > 0; i--) {
                     if (i === 1) {
-                        await this.#writeToStream(this.workerResults[fileName].shift(), fileName, options)
+                        await this.#writeToStream(
+                            this.workerResults[fileName].shift(),
+                            fileName,
+                            options
+                        )
                         //overriding final because we only want it on the last iteration.
                     } else {
                         await this.#writeToStream(this.workerResults[fileName].shift(), fileName, {
@@ -48,7 +52,11 @@ class StreamBuilder {
         } else {
             for (const fileName in this.streams) {
                 for (let i = this.workerResults[fileName].length; i > 0; i--) {
-                    await this.#writeToStream(this.workerResults[fileName].shift(), fileName, options)
+                    await this.#writeToStream(
+                        this.workerResults[fileName].shift(),
+                        fileName,
+                        options
+                    )
                 }
             }
         }
