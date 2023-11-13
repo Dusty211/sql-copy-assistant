@@ -57,6 +57,20 @@ async function runPipeline({
             }
         },
 
+        // Sort
+        async function* (source) {
+            let shifted = 0
+            const sortQueue = []
+            for await (const result of source) {
+                const index = result.index - shifted - 1
+                sortQueue[index] = result.data
+                while(sortQueue[0]) {
+                    shifted++
+                    yield sortQueue.shift()
+                }
+            }
+        },
+
         // Write threadpool results to files
         async function* (source) {
             const streams = await new StreamBuilder(

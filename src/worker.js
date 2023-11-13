@@ -5,9 +5,10 @@ const {prepareFileFunctions} = require('./prepare-file-functions')
     const fileFunctions = prepareFileFunctions(functionsFilePath)
     parentPort.on('message', ({index, string}) => {
         const newlineObject = inputFormat === 'json' ? JSON.parse(string) : string
-        const result = {}
+        const result = {index}
+        result.data = {}
         for (const [fileName, fileFunction] of Object.entries(fileFunctions)) {
-            result[fileName] = fileFunction(index, newlineObject)
+            result.data[fileName] = fileFunction(index, newlineObject)
         }
         parentPort.postMessage(result)
     })
